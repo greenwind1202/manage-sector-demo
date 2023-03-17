@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "start": "nodemon app.js",
     "lint": "npx eslint \"./**/*.@(tsx|ts|jsx|js)\" --fix",
     "prettier": "npx prettier --check \"./**/*.@(tsx|ts|jsx|js)\" --write"
   },

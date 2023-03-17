@@ -1,0 +1,20 @@
+[
+  { "name": "Manufacturing", "level": 0, "id": 0, "parent": null },
+  { "name": "Construction materials", "id": 1, "parent": 0, "level": 1 },
+  { "name": "Electronics and Optics", "id": 2, "parent": 0, "level": 1 },
+  { "name": "Food and Beverage", "id": 3, "parent": 0, "level": 1 },
+  { "name": "Bakery & confectionery products", "id": 4, "parent": 3, "level": 2 },
+  { "name": "Fish & fish products", "id": 5, "parent": 3, "level": 2 },
+  { "name": "Meat & meat products", "id": 6, "parent": 3, "level": 2 },
+  { "name": "Milk & dairy products", "id": 7, "parent": 3, "level": 2 },
+  { "name": "Other", "id": 8, "parent": 3, "level": 2 },
+  { "name": "Sweets & snack food", "id": 9, "parent": 3, "level": 2 },
+  { "name": "Furniture", "id": 10, "parent": 0, "level": 1 },
+  { "name": "Bathroom/sauna", "id": 11, "parent": 10, "level": 2 },
+  { "name": "Bedroom", "id": 12, "parent": 10, "level": 2 },
+  { "name": "Office", "id": 13, "parent": 10, "level": 2 },
+  { "name": "Project furniture", "id": 14, "parent": 10, "level": 2 },
+  { "name": "Machinery", "children": [11, 16, 17], "id": 15, "parent": 0, "level": 1 },
+  { "name": "Machinery components", "id": 16, "parent": 15, "level": 2 },
+  { "name": "Machinery equipment/tools", "id": 17, "parent": 15, "level": 2 }
+]

@@ -5,6 +5,11 @@ services:
       context: ./frontend
       dockerfile: ./Dockerfile
     stdin_open: true
+    volumes:
+      - ./frontend/src:/usr/src/app/src
+      - type: bind
+        source: ./frontend/package.json
+        target: /usr/src/app/package.json
     ports: 
       - "3000:3000"
     networks:
@@ -13,6 +18,11 @@ services:
     build:
       context: ./backend
       dockerfile: ./Dockerfile
+    volumes:
+      - ./backend:/usr/src/app
+      - type: bind
+        source: ./backend/package.json
+        target: /usr/src/app/package.json
     ports:
       - "5000:5000"
     networks:
@@ -20,7 +30,12 @@ services:
     depends_on:
       - mongo
   mongo:
-    image: mongo:3.6.19-xenial
+    image: mongo
+    container_name: sector_db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+      - MONGO_INITDB_DATABASE=sector
     ports:
       - "27017:27017"
     networks:
