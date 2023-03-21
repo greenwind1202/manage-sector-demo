@@ -7,6 +7,7 @@ services:
     stdin_open: true
     volumes:
       - ./frontend/src:/usr/src/app/src
+      - /usr/src/app/node_modules
       - type: bind
         source: ./frontend/package.json
         target: /usr/src/app/package.json
@@ -20,6 +21,7 @@ services:
       dockerfile: ./Dockerfile
     volumes:
       - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
       - type: bind
         source: ./backend/package.json
         target: /usr/src/app/package.json
