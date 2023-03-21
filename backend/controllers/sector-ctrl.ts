@@ -1,8 +1,8 @@
-const Sector = require('../models/sector-model');
-const MasterSector = require('../models/master-sector-model');
-const db = require('../db');
+import { Request, Response } from "express";
+import MasterSector from '../models/master-sector-model';
+import Sector from '../models/sector-model';
 
-createSector = (req, res) => {
+const createSector = (req: Request, res: Response) => {
   const body = req.body;
 
   if (!body) {
@@ -11,11 +11,11 @@ createSector = (req, res) => {
       error: 'You must provide a valid Sector',
     });
   }
-
   const sector = new Sector(body);
-  if (!sector) {
-    return res.status(400).json({ success: false, error: err });
-  }
+  console.log(sector);
+  // if (!sector) {
+  //   return res.status(400).json({ success: false, error: "Failed to create sector!" });
+  // }
 
   sector
     .save()
@@ -27,14 +27,15 @@ createSector = (req, res) => {
       });
     })
     .catch((error) => {
+      console.log(error);
       return res.status(400).json({
         error,
-        message: 'Sector not created!',
+        message: 'Failed to create sector!',
       });
     });
 };
 
-updateSector = async (req, res) => {
+const updateSector = async (req: Request<{ id: string}>, res: Response) => {
   const body = req.body;
 
   if (!body) {
@@ -45,13 +46,13 @@ updateSector = async (req, res) => {
   }
   await Sector.findOne({ _id: req.params.id })
     .then((sector) => {
-      sector.name = body.name;
-      sector.sectors = body.sectors;
-      sector.agree_to_terms = body.agree_to_terms;
-      sector.save();
+      sector!.name = body.name;
+      sector!.sectors = body.sectors;
+      sector!.agree_to_term = body.agree_to_term;
+      sector!.save();
       res.status(200).json({
         success: true,
-        id: sector._id,
+        id: sector!._id,
         message: 'Sector updated!',
       });
     })
@@ -64,7 +65,7 @@ updateSector = async (req, res) => {
     });
 };
 
-getSectors = async (req, res) => {
+const getSectors = async (req: Request, res: Response) => {
   await Sector.find({})
     .then((result) => {
       res.status(200).json({
@@ -81,7 +82,7 @@ getSectors = async (req, res) => {
     });
 };
 
-getMasterSector = async (req, res) => {
+const getMasterSector = async (req: Request, res: Response) => {
   await MasterSector.find({})
     .then((result) => {
       res.status(200).json({
@@ -97,5 +98,5 @@ getMasterSector = async (req, res) => {
       console.log(err);
     });
 };
-
-module.exports = { createSector, updateSector, getSectors, getMasterSector };
+const SectorCtrl = { createSector, updateSector, getSectors, getMasterSector };
+export default SectorCtrl;

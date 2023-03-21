@@ -1,116 +1,128 @@
 import React from "react";
-import {
-  API_URL_GET_MASTER_SECTOR,
-  API_URL_INSERT_SECTOR,
-  API_URL_UPDATE_SECTOR,
-} from "../../../utils/Constant";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { BASE_API_URL } from "../../../utils/Constant";
 import { MasterSector } from "../models/MasterSectorModel";
-import { SelectSector } from "../components/SelectSector";
+import { Sector } from "../models/SectorModel";
+
+const schema = yup
+  .object()
+  .shape({
+    name: yup.string().required("Name is required"),
+    sectors: yup.array().min(1, "Choose at least 1"),
+    agreeToTerms: yup
+      .boolean()
+      .oneOf([true], "You must accept the terms and conditions"),
+  })
+  .required();
 
 export default function SectorPage() {
-  const [selectedSectors, setSelectedSectors] = React.useState<Array<Number>>(
-    [] as Array<Number>
-  );
   const [idSector, setIdSector] = React.useState<string>("");
   const [masterSector, setMasterSector] = React.useState<Array<MasterSector>>(
     [] as Array<MasterSector>
   );
-  const [agreeToTerms, setAgreeToTerms] = React.useState<boolean>(false);
-  const nameRef = React.useRef<HTMLInputElement>(null);
-
-  const handleOnChangeSector = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const options = e.target.options;
-    let values: Array<Number> = [];
-    for (var i = 0, l = options.length; i < l; i++) {
-      if (options[i].selected) {
-        values.push(parseInt(options[i].value));
-      }
-    }
-    setSelectedSectors(values);
-  };
-  const handleAgreeToTermsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAgreeToTerms(e.target.checked);
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+  const optionList: any = [];
 
   React.useEffect(() => {
     if (masterSector.length > 0) return;
     (async () => {
       try {
-        const response = await fetch(API_URL_GET_MASTER_SECTOR);
+        const url = new URL(BASE_API_URL + "master_sector");
+        const response = await fetch(url);
         const data = await response.json();
         if (data.success) {
           setMasterSector(data.data);
         }
       } catch (e) {}
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSave = () => {
-    if (!nameRef.current?.value) {
-      alert("Please input name");
-      return;
-    }
-    if (selectedSectors.length === 0) {
-      alert("Please select sector");
-      return;
-    }
-    if (!agreeToTerms) {
-      alert("Please agree to terms");
-      return;
-    }
-    if (idSector === "") {
-      handleCreateSector();
-    } else {
-      handleUpdateSector();
-    }
-  };
-  const handleCreateSector = async () => {
+  const handleCreateSector = async (data: Sector) => {
     try {
-      const response = await fetch(API_URL_INSERT_SECTOR, {
+      const url = new URL(BASE_API_URL + "sector");
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: nameRef.current?.value,
-          sectors: selectedSectors,
-          agreeToTerms: agreeToTerms,
+          name: data.name,
+          sectors: data.sectors,
+          agree_to_term: data.agreeToTerms,
         }),
       });
-      const data = await response.json();
-      alert(data.message);
-      if (data.success) setIdSector(data.id);
+      const res = await response.json();
+      alert(res.message);
+      if (res.success) setIdSector(res.id);
     } catch (e) {}
   };
 
-  const handleUpdateSector = async () => {
+  const handleUpdateSector = async (data: Sector) => {
     try {
-      const response = await fetch(
-        API_URL_UPDATE_SECTOR.replace("{0}", idSector),
-        {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            id: idSector,
-            name: nameRef.current?.value,
-            sectors: selectedSectors,
-            agreeToTerms: agreeToTerms,
-          }),
-        }
-      );
-      const data = await response.json();
-      alert(data.message);
-      if (data.success) setIdSector(data.id);
+      const url = new URL(BASE_API_URL + "sector/" + idSector);
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: idSector,
+          name: data.name,
+          sectors: data.sectors,
+          agree_to_term: data.agreeToTerms,
+        }),
+      });
+      const res = await response.json();
+      alert(res.message);
+      if (res.success) setIdSector(res.id);
     } catch (e) {}
   };
+  const onSubmit = (data: any) => {
+    if (idSector === "") {
+      handleCreateSector(data);
+    } else {
+      handleUpdateSector(data);
+    }
+  };
 
+  const getAllChild = (id: number) => {
+    let result: Array<MasterSector> = [] as Array<MasterSector>;
+    masterSector.forEach((item) => {
+      if (item.parent === id) {
+        optionList.push(
+          <option key={item.id} value={item.id}>
+            {"  ".repeat(item.level * 2).replace(/\s/g, "\u00A0")}
+            {item.name}
+          </option>
+        );
+        getAllChild(item.id);
+      }
+    });
+    return result;
+  };
+  if (masterSector.length > 0) {
+    masterSector.sort((a, b) => a.id - b.id);
+    optionList.push(
+      <option key={masterSector[0].id} value={masterSector[0].id}>
+        {masterSector[0].name}
+      </option>
+    );
+    getAllChild(0);
+  }
   return (
     <div className="flex justify-center">
-      <form>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="md:flex md:items-center mb-6">
           Please enter your name and pick the Sectors you are currently involved
           in.
@@ -126,8 +138,11 @@ export default function SectorPage() {
               className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
               id="inline-full-name"
               type="text"
-              ref={nameRef}
+              {...register("name")}
             />
+            {errors.name?.message && (
+              <p className="text-red-700">{errors.name?.message?.toString()}</p>
+            )}
           </div>
         </div>
         <div className="md:flex md:items-center mb-6">
@@ -137,34 +152,46 @@ export default function SectorPage() {
             </label>
           </div>
           <div className="md:w-2/3">
-            <SelectSector
-              handleOnChangeSector={handleOnChangeSector}
-              data={masterSector}
-            />
+            <select
+              multiple={true}
+              className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+              {...register("sectors")}
+            >
+              {optionList}
+            </select>
+            {errors.sectors?.message && (
+              <p className="text-red-700 text-normal">
+                {errors.sectors?.message?.toString()}
+              </p>
+            )}
           </div>
         </div>
         <div className="md:flex md:items-center mb-6">
           <div className="md:w-1/3"></div>
-          <label className="md:w-2/3 block text-gray-500 font-bold">
+          <label className="md:w-2/3 block text-gray-500">
             <input
               className="mr-2 leading-tight"
               type="checkbox"
-              checked={agreeToTerms || false}
-              onChange={handleAgreeToTermsChange}
+              // checked={agreeToTerms || false}
+              // onChange={handleAgreeToTermsChange}
+              {...register("agreeToTerms")}
             />
-            <span className="text-sm">Agree to terms</span>
+            <span className="text-sm font-bold">Agree to terms</span>
+            {errors.agreeToTerms?.message && (
+              <p className="text-red-700 text-normal">
+                {errors.agreeToTerms?.message?.toString()}
+              </p>
+            )}
           </label>
         </div>
         <div className="md:flex md:items-center">
           <div className="md:w-1/3"></div>
           <div className="md:w-2/3">
-            <button
+            <input
               className="shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
-              type="button"
-              onClick={handleSave}
-            >
-              Save
-            </button>
+              type="submit"
+              value="Save"
+            />
           </div>
         </div>
       </form>

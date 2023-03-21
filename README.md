@@ -6,11 +6,20 @@ MERN stack (MongoDB, Express, Reactjs and Nodejs)
 
 Execute the following command under project directory:
 
-```sh
-$ docker-compose build -d
-$ docker-compose up
-$ docker cp ./backend/db/init.json sector_db:/tmp/init.json
-$ docker exec sector_db mongoimport -u root -p pass -d test -c master_sector --file ./tmp/init.json --authenticationDatabase=admin --jsonArray
+```
+docker-compose build
+```
+
+```
+docker-compose up -d
+```
+
+```
+docker cp ./backend/db/init.json sector_db:/tmp/init.json
+```
+
+```
+docker exec sector_db mongoimport -u root -p pass -d test -c master_sector --file ./tmp/init.json --authenticationDatabase=admin --jsonArray
 ```
 
 Runs the app in the development mode.\
