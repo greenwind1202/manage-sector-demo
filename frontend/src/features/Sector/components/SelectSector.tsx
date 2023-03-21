@@ -14,7 +14,6 @@ export function SelectSector({
     let result: Array<MasterSector> = [] as Array<MasterSector>;
     data.forEach((item) => {
       if (item.parent === id) {
-        console.log(id);
         optionList.push(
           <option key={item.id} value={item.id}>
             {"  ".repeat(item.level * 2).replace(/\s/g, "\u00A0")}

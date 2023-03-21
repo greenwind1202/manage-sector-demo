@@ -84,7 +84,6 @@ getSectors = async (req, res) => {
 getMasterSector = async (req, res) => {
   await MasterSector.find({})
     .then((result) => {
-      console.log(result);
       res.status(200).json({
         success: true,
         data: result,
