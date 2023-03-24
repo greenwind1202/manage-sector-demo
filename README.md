@@ -25,9 +25,6 @@ docker exec sector_db mongoimport -u root -p pass -d test -c master_sector --fil
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-# Results
-
-- Completed all items in task list
 
 ### Structure
 
@@ -95,6 +92,3 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 }
 ```
 
-# Incompleted items
-
-- None
